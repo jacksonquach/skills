@@ -5,7 +5,7 @@ Claude Code / Agent skills. Each top-level directory is one skill containing a `
 
 ## Skills
 
-- [`four-plane/`](four-plane/SKILL.md) — reorganize a messy project folder into a findable four-plane layout (MD/Dashboard/Inputs/Database+scripts, routing at top), safely: repoints code, verifies nothing breaks, never deletes content.
+- [`four-plane/`](four-plane/SKILL.md) — organize any project folder so anything is findable in one obvious step: four planes (MD/Dashboard/Inputs/Database+scripts), routing at top, one canonical home per thing, plus a bundled structure linter (`scripts/structure_check.py`) that catches decay. v2 (Fable).
 - [`kanboard/`](kanboard/SKILL.md) — interact with a self-hosted [Kanboard](https://github.com/kanboard/kanboard) instance over its JSON-RPC API (projects, tasks, columns, comments).
 
 ## Using a skill

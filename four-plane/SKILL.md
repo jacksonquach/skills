@@ -1,89 +1,120 @@
 ---
 name: four-plane
-description: Reorganize a messy project folder into a findable four-plane layout (MD/Dashboard/Inputs/Database+scripts, routing at top), safely — repointing code, verifying nothing breaks, and never deleting content. Trigger on "I can't find X", "where is/was the file", "reorganize this folder", "clean up this project", "make this easier to navigate", or "/four-plane <path>".
+description: Organize any project folder so anything is findable in one obvious step — four planes (MD/Dashboard/Inputs/Database+scripts), routing at top, one canonical home per thing, and a bundled linter (scripts/structure_check.py) that catches decay before it costs anyone a night of hunting. Trigger on "I can't find X", "where is/was the file", "reorganize this folder", "clean up this project", "make this easier to navigate", "/four-plane <path>", or to check a folder with "lint the structure".
 ---
 
 # Four-Plane
 
-A repeatable, safe procedure for taking any project folder from "I opened folder after folder
-and never found it" to "one obvious path to everything." Named for the four functional planes
-every project folder gets sorted into.
+**Version:** 2.0 · Fable · 2026-07-02 *(v1: Opus 4.8, same day — v2 is the post-mortem
+rewrite after v1's standard failed in the field: a night lost hunting a revised file that
+sat in a sibling folder under the same name. Every v2 addition traces to a real failure.)*
 
-The standard it enforces, borrowed from Steve Krug's *Don't Make Me Think*: **anything the user
-wants should be reachable in ≤2 clicks from the folder's README, named plainly.** If finding a
-file requires memory, search, or guessing between two similarly-named things, the structure
-failed — fix the structure, not the user's search skills.
+The point, in one line (after Steve Krug): **don't make me think.** Anything a person wants
+must be reachable in ≤2 clicks from the folder's README, named plainly. If finding a file
+requires memory, search, or choosing between two similar-looking things, the *structure*
+failed — fix the structure, not the person's search habits.
 
-## When to use this skill
+The acceptance test: **the 11pm test.** Could the folder's owner, tired at 11pm, find the
+latest revised version of anything without opening a single wrong folder?
 
-- Someone says they couldn't find a file, or had to open several folders to locate something.
-- A project folder has accumulated loose files at the root, duplicate-looking subfolders, or
-  stale copies sitting next to current ones.
-- Before shipping a new project structure — apply this as the standard, not just the fix.
-
-## The target layout
+## The four planes
 
 ```
 <project>/
-├── README.md          # find-it-fast table FIRST, then everything else
-├── <identity files>    # CLAUDE.md / config / at most 1-2 entry-point launchers
-├── MD/                 # ALL readable/editable content — notes, docs, source material being worked on
-├── Dashboard/          # rendered, OPEN-and-READ artifacts — compiled outputs, reports, generated views
-├── Inputs/              # raw, immutable sources — never edited, only cited/read
-└── Database/ + scripts/ # machinery — derived data + the code that generates Dashboard/ from MD/+Inputs/
+├── README.md            # FIRST section = find-it-fast table ("You want X → it's here")
+├── <identity files>      # CLAUDE.md/AGENTS.md, config, at most 1–2 entry-point launchers
+├── MD/                   # the DESK — all readable/editable working content
+├── Dashboard/            # the WALL — rendered things you open and read (reports, compiled outputs, views)
+├── Inputs/                # the FILE CABINET — raw immutable sources; cite, never edit
+│   └── inbox/             # the DOORMAT — the ONE sanctioned drop zone (see law 5)
+└── Database/ + scripts/   # the MACHINE SHOP — derived data + the code that turns MD+Inputs into Dashboard
 ```
 
-Omit a plane rather than create it empty. Root holds only routing/identity — if you can't say
-in one word why a file is at the root, it belongs on a plane.
+Omit a plane rather than create it empty. Root is routing only — if you can't say in one
+word why a file sits at the root, it belongs on a plane.
 
-**Detect the project's archetype and adapt:**
+## The six laws (v2 — each one bought with a real failure)
 
-| Archetype | Signals | Special handling |
-|---|---|---|
-| **Pipeline** (data/build project) | a `serve.py`/build script, generated outputs, config-driven generators | repoint script OUTPUT paths; drop any `copy`-based mirroring step; test the server/build after (hit endpoints, check exit code) |
-| **Creative / knowledge** (writing, research, wikis) | content bundles, big note collections, versioned drafts (`v2`, `v3`) | **keep self-contained project bundles intact — don't flatten them**; never guess which draft supersedes another |
-| **Records / tracking** (logs, structured data, sensitive info) | append-only files, baked/self-contained dashboards, PII or other sensitive content | verify dashboards are self-contained (don't introduce a broken loader); be privacy-aware about what gets surfaced where; leave append-only files alone |
-| **Generic** | none of the above | route purely by file role → plane |
+1. **Routing at top.** README's first section is a find-it-fast table; below the fold is
+   optional. A launcher (`Start X.command` / `.bat`) may sit at root — one obvious entry
+   point, two max.
+2. **One plane per file, no plane aliases.** Exactly one folder plays each role. A legacy
+   `sources/` living next to `Inputs/` means raw files have two homes — that *is* the decoy
+   trap, just one level up. Fold aliases in; don't tolerate them as "grandfathered."
+3. **One canonical home per thing — and revisions go home.** The failure that motivated v2:
+   revised work parked in a working folder (`notes/…`) while the canonical location
+   (`story-bible/…`) kept stale files under the *same names*. Work-in-progress may fork;
+   **the session that finishes it must merge it back to the canonical home before ending.**
+   If a fork must persist, the README names which copy is canonical — silence is a trap.
+4. **Stable names; versions to Archive.** The current file keeps the plain stable name
+   (`report.md`, not `report-v3-final.md`); superseded versions move to `Archive/` (dated),
+   never sit as siblings. Dated *notes* are fine; dated *artifacts pretending to be current*
+   are not. Never delete — archive with origin preserved (`Archive/_empty-folders/<origin>`
+   for emptied husks).
+5. **Entropy gets a doormat, not a doorway.** People drop files somewhere no matter what —
+   sanction ONE drop zone (`Inputs/inbox/` or root `_inbox/`) and make triage-to-planes a
+   routine step. Otherwise the root becomes the de facto inbox and law 1 dies quietly.
+6. **Structure is fractal.** A folder inside a project that grows its own machinery/outputs
+   becomes a *sub-project*: it gets its own routing + planes inside, and moves as a whole
+   unit. (v1's blind spot: the standard governed the top level while a workspace below it
+   rotted — rules that don't recurse leave exactly one ungoverned level, and that's where
+   the mess moves.)
 
-## The safety-first procedure
+## Enforcement — the standard is executable
 
-Each step below exists because skipping it caused a real problem in practice at some point.
-Don't skip them.
+Prose standards decay silently; nobody notices drift until someone loses a night to it.
+So the standard ships as a linter:
 
-0. **Pre-flight: check for concurrent work.** If another process, editor, or agent session has
-   the target folder open, defer or coordinate first — bulk moves under live edits corrupt work.
-1. **Map every dependency before moving anything.** Grep code, launcher scripts, config files,
-   and any content that cites internal paths (frontmatter, includes, relative links). Build the
-   full list of things that will need repointing — don't discover them one broken run at a time.
-2. **Classify every file into exactly one plane.** For anything that looks like a duplicate:
-   check mtime, size, and content head before deciding — `_v2`/`_v3`/`(1)` suffixes are usually
-   *distinct* documents, not duplicates. Hash-compare (`sha256`) before ever calling two files
-   "the same." **Never silently pick a winner or delete content on a guess** — if it's ambiguous,
-   flag it for the human instead of resolving it yourself.
-3. **Move by renaming whole folders where possible** (`mv sources Inputs` beats moving file by
-   file). Keep self-contained project bundles as units. Never move a file that's currently open
-   (check for lock files / editor swap files first — skip and flag instead).
-4. **Archive emptied folders, never delete.** Anything the reorg itself emptied goes to an
-   `Archive/_empty-folders/<original path>` location, preserving where it came from. Only archive
-   folders *this reorg* emptied — never recursively sweep everything (that catches version
-   control internals, caches, and intentional empty drop-zones you didn't mean to touch).
-5. **Repoint every dependency found in step 1, in the same pass as the move.** Script path
-   constants, config file references, UI strings, launcher commands, content citations — all of
-   it, right away. If you move the artifact but not its generator's output path, the next run
-   just recreates the old mess.
-6. **Verify — don't assume.** Run the build. Start the server. Open the generated output. Check
-   logs/console are clean. If any moved HTML/config has a relative loader path (`src=`, `href=`,
-   `fetch(...)` to a local file), confirm it still resolves or fix it.
-7. **Rewrite the routing docs last.** The README's find-it-fast table goes first, above the fold.
-   If two things share a name or purpose, the README must say which one is canonical — don't
-   leave that ambiguity for the next person to rediscover.
-8. **Report what moved and what's still a judgment call.** Anything ambiguous (which draft is
-   current, whether to merge two near-duplicate sources) goes back to the human — don't decide
-   silently on their behalf.
+```bash
+python3 scripts/structure_check.py <folder>        # exit 0 clean · 1 FAIL findings
+```
+
+It flags: same-named files in two homes (decoys, newest first with dates), loose files and
+non-plane folders at root, version-suffix siblings in active planes, missing find-it-fast
+table, empty folders outside Archive, and inbox backlog. Sub-projects (fractal rule) and
+app bundles (`.scriv`, `.app`, …) are respected, not flagged. Run it after any reorg, on
+new-project creation, or from a scheduled audit — **the tripwire, not discipline, is what
+keeps the shape.**
+
+## When to run a reorg (and when not to)
+
+Reorganize on **pain** (someone couldn't find a thing), on **creation** (new project starts
+on the standard — cheapest possible time), or on a **linter FAIL**. Do *not* reorganize
+recreationally: a working folder that passes the 11pm test stays as it is, and a reorg that
+breaks a pipeline is worse than clutter.
+
+## The safe reorg procedure (proven; unchanged from v1)
+
+0. **Pre-flight:** if another process/editor/agent session is live in the folder, defer or
+   coordinate — bulk moves under live edits corrupt work.
+1. **Map every dependency before moving anything:** grep code, launchers, configs, commands,
+   and content citations for paths that will change. Build the full repoint list first.
+2. **Classify every file into exactly one plane.** For lookalikes: mtime + size + content
+   head before judging; hash-compare before calling anything a "dup" (`_v2` files are usually
+   distinct). **Never silently pick winners, merge, or delete — ambiguity goes back to the human.**
+3. **Move by renaming whole folders where possible** (`mv sources Inputs` beats file-by-file).
+   Bundles move whole. Never move an open file (lock/swap siblings → skip + flag).
+4. **Archive, never delete.** Reorg-emptied folders → `Archive/_empty-folders/<origin>`;
+   never recursive-sweep (it eats VCS internals, caches, and intentional drop zones).
+5. **Repoint everything from step 1 in the same pass** — script constants, config refs, UI
+   strings, launcher commands, citations. Grep for residuals until zero.
+6. **Verify, don't assume:** run the build, start the server, open the output, check logs
+   clean, screenshot. Then run the linter.
+7. **Rewrite routing last:** find-it-fast table first; name the canonical copy of anything
+   that still exists twice.
+8. **Report:** what moved, what got repointed, what's flagged for a human call.
+
+## Archetype cautions
+
+| Folder type | Watch for |
+|---|---|
+| Pipeline (build/data) | script OUT-paths; copy-based mirrors (drop them); test server endpoints after |
+| Creative / knowledge | apps that read content by path (repoint their ROOT); never guess which draft supersedes; bundles stay whole |
+| Records / sensitive | baked vs. loader dashboards; privacy — don't resurface sensitive files in a README; append-only files stay put |
+| Generic | route purely by file role → plane |
 
 ## Output
 
-This is a process skill with no single artifact — it produces a reorganized folder plus a short
-report of what moved, what got repointed, and what's flagged for a human decision. If the host
-project has its own changelog/update-log convention, log the reorg there; otherwise a short
-summary in the chat response is enough.
+A process skill: produces the reorganized folder, a clean linter run, and a short report
+(moved / repointed / flagged). Log the reorg in the host project's changelog convention if
+one exists; otherwise the chat summary is the record.
