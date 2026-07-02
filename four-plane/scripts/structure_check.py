@@ -27,7 +27,7 @@ from collections import defaultdict
 from pathlib import Path
 
 PLANES = {"MD", "Dashboard", "Inputs", "Database", "scripts"}
-OK_ROOT_DIRS = PLANES | {"Archive", "_inbox"}
+OK_ROOT_DIRS = PLANES | {"Archive", "_inbox", "wiki"}  # wiki/ = knowledge plane at top (its relative links break if nested)
 OK_ROOT_FILES = {"README.md", "CLAUDE.md", "AGENTS.md", ".DS_Store", "Thumbs.db", "desktop.ini"}
 LAUNCHER = re.compile(r"\.(command|bat|ps1|sh|desktop|lnk)$", re.I)
 IDENTITY = re.compile(r"^(about-.*\.md|.+ Master\.(md|js)|.+\.code-workspace)$", re.I)
