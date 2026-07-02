@@ -113,6 +113,11 @@ breaks a pipeline is worse than clutter.
 | Records / sensitive | baked vs. loader dashboards; privacy — don't resurface sensitive files in a README; append-only files stay put |
 | Generic | route purely by file role → plane |
 
+## Related
+
+Pairs with [`training-loop/`](../training-loop/SKILL.md): four-plane governs **space** (where
+things live); training-loop governs **time** (how the system learns from the work done there).
+
 ## Output
 
 A process skill: produces the reorganized folder, a clean linter run, and a short report
